@@ -6,7 +6,7 @@ const estudiantes = [
     nombreCompleto: {
       nombre: 'Ellis',
       apellido: 'Reeves'
-    },
+  },
     hechizoPreferido: 'Expecto Patronum',
     materias: [
       {
