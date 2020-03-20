@@ -34,8 +34,9 @@ const estudiantesConFamiliares = (familiares, estudiantes) => {
     const promedios = materia => materia.promedio;           //funcion que busca los promedios de cada materia
     const sumaDePromedios = (sumaParcial, actual) => sumaParcial + actual;      //funcion q indica que hacer al reduce
 
-const obtenerPromedioDeEstudiante = estudiantes => {
-    const calculoPromedio = estudianteAleatorio.materias.map(promedios).reduce(sumaDePromedios) / estudianteAleatorio.materias.length           //del estudiante random armo una variable con todos los promedios y ejecuto la suma luego divido por el largo p el promedio
+    const obtenerPromedioDeEstudiante = estudiantes => {
+        const calculoPromedio = estudianteAleatorio.materias.map(promedios).reduce(sumaDePromedios) / estudianteAleatorio.materias.length           //del estudiante random armo una variable con todos los promedios y ejecuto la suma luego divido por el largo p el promedio
+        //el map lo uso para armar un array (misma cantidad de items pasado x el callback) con todos los promedios de las materias
      
     return `El promedio total de ${estudianteAleatorio.nombreCompleto.nombre} ${estudianteAleatorio.nombreCompleto.apellido} es ${calculoPromedio}`
 }
@@ -77,14 +78,81 @@ const mejoresEstudiantesPorCasa = (casa, estudiantes) => {
 
 //     const casaHufflepuff = estudiante => estudiante.casa === 'Hufflepuff';
 //     const porCasaHufflepuff = estudiantes.filter(casaHufflepuff).filter(porPromedioMayorSeis);
-
     
-//     return filtroPrueba;
+//     if(porCasaRavenclaw.length > porCasaGryffindor.length && porCasaRavenclaw.length > porCasaSlytherin.length && porCasaRavenclaw.length > porCasaHufflepuff.length){
+//         return porCasaRavenclaw;
+//     } else if(porCasaGryffindor.length > porCasaRavenclaw.length && porCasaGryffindor.length > porCasaSlytherin.length && porCasaGryffindor.length > porCasaHufflepuff.length){
+//         return porCasaGryffindor;
+//     } else if(porCasaSlytherin.length > porCasaGryffindor.length && porCasaSlytherin.length > porCasaRavenclaw.length && porCasaSlytherin.length > porCasaHufflepuff.length){
+//         return porCasaSlytherin;
+//     } else if(porCasaHufflepuff.length > porCasaGryffindor.length && porCasaHufflepuff.length > porCasaSlytherin.length && porCasaHufflepuff.length > porCasaRavenclaw.length){
+//         return porCasaHufflepuff;
+//     }
 // }
 
 
 
 //estudiantesPorMateriaAprobada, que tome por parámetro el nombre de una materia y un array de estudiantes y devuelva una array con les estudiantes que tienen en dicha materia un promedio superior a 6
-const estudiantesPorMateriaAprobada = (materia, estudiantes) => {
-    const porAprobadas 
+const estudiantesPorMateriaAprobada = (materiaAChequear, estudiantes) => {
+    const porMateria = materia => materia.nombre === materiaAChequear && materia.promedio > 6;
+
+    const porMateriaAprobada = estudiante => {
+        const resultado = estudiante.materias.filter(porMateria)
+
+        return resultado.length !== 0
+    } 
+
+    return estudiantes.filter(porMateriaAprobada)
 }
+
+
+
+//obtenerInfoResumida, que tome por parámetro un array de estudiantes y devuelva un array con objetos, habiendo un objeto por estudiante, donde cada objeto tiene las siguientes propiedades: nombre, casa, promedio, amigues (cantidad)
+const obtenerInfoResumida = estudiantes => {
+    const obtenerInfo = estudiante => {
+        const infoEspecifica = {}
+        infoEspecifica.nombre = `${estudiante.nombreCompleto.nombre} ${estudiante.nombreCompleto.apellido}`
+        infoEspecifica.casa = estudiante.casa
+        infoEspecifica.promedio = obtenerPromedioDeEstudiante(estudiante)
+        infoEspecifica.amigues = estudiante.amigues.length
+
+        return infoEspecifica
+    }
+    
+    return estudiantes.map(obtenerInfo)
+}
+
+
+//cantidadDeEstudiantesPorCasa, que tome por parámetro un array de estudiantes y devuelva un objeto con los nombres de las casas como propiedades y la cantidad de estudiantes por casa (no debe contar amigues)
+const cantidadDeEstudiantesPorCasa = estudiantes => {
+   
+
+    const cantidadPorCasa = (cuentaParcial, estudiante) => {
+        cuentaParcial[estudiante.casa] = cuentaParcial[estudiante.casa] + 1 || 1          // va recorriendo cada estudiante, accede a cuenta parcial y le suma uno
+        //hacemos esto con reduce cuando no sabemos las propiedasdes q tenemos
+        return cuentaParcial;
+    }
+
+    return estudiantes.reduce(cantidadPorCasa, {});
+}
+
+
+
+//cantidadDeEstudiantesPorMateriaAprobada, que tome por parámetro un array de estudiantes y devuelva un objeto con los nombres de las materias como propiedades y la cantidad de estudiantes que aprobaron dicha materia (promedio superior a 6)
+const aNombreDeMateria = materia => materia.nombre;
+const materiaAprobada = materia => materia.promedio > 6;
+
+const aMateriasAprobadas = (resultadoParcial, materia) => {         //string del nombre
+    resultadoParcial[materia] = resultadoParcial[materia] + 1 || 1;
+
+    return resultadoParcial;
+}
+
+const aprobadesPorMateria = (totalGeneralParcial, estudiante) =>  
+    estudiante.materias                     //obtenemos el array de materias
+        .filter(materiaAprobada)           //filtramos las materias aprobadas
+        .map(aNombreDeMateria)             //nos quedamos con un array con los nombres de las materias
+        .reduce(aMateriasAprobadas, totalGeneralParcial)
+
+const cantidadDeEstudiantesPorMateriaAprobada = estudiantes => estudiantes.reduce(aprobadesPorMateria, {})         
+        //reduce el array de estudiantes a un objeto con materias y cantidad de aprobades -> RESULTADO FINAL
